@@ -1,3 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #050505; /* 背景を真っ黒に */
+    color: #ffffff; /* 基本の文字色を真っ白に */
+  }
+}

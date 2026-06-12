@@ -119,8 +119,12 @@ export default function App() {
 
   // ▼ がレイアウト
   return (
+    // 一番外側の背景を「深い紺色 (bg-blue-950)」に変更
     <div className="bg-[#050505] min-h-screen w-full flex justify-center text-white font-sans select-none">
+      
+      {/* 2. アプリの本体枠を「少し明るい紺色 (bg-blue-900)」に変更し、枠線も青系 (border-blue-800) に */}
       <div className="w-full max-w-[450px] bg-[#111111] min-h-screen border-x border-[#333] shadow-2xl p-4 sm:p-5">
+        
         <HeaderTabs activeMode={activeMode} setActiveMode={setActiveMode} />
         <ScoreSummary highestRecord={highestRecord} averageScore={averageScore} averageRank={averageRank} />
         <SeasonNav currentSeason={currentSeason} setCurrentSeason={setCurrentSeason} />

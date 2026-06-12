@@ -3,7 +3,7 @@ import React from 'react';
 export default function ScoreSummary({ highestRecord, averageScore, averageRank }) {
   return (
     <div className="bg-[#1a1a1a] p-5 rounded-2xl border border-[#333] mb-6 shadow-lg">
-      <h2 className="text-sm font-black text-[#ffe800] mb-4 text-center tracking-widest drop-shadow-md">SCORE SUMMARY</h2>
+      <h2 className="text-sm font-black text-[#ffe800] mb-4 text-center tracking-widest drop-shadow-md">SCORE</h2>
       
       <div className="flex gap-4">
         <div className="flex-1 bg-[#111] border border-[#2a2a2a] rounded-xl p-4 flex flex-col items-center justify-center">
