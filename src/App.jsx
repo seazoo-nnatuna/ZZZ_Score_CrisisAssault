@@ -117,25 +117,52 @@ export default function App() {
     }
   };
 
-  // ▼ がレイアウト
+  // ▼ ここから下がレイアウトの要（かなめ）です
   return (
-    // 一番外側の背景を「深い紺色 (bg-blue-950)」に変更
-    <div className="bg-[#050505] min-h-screen w-full flex justify-center text-white font-sans select-none">
+    <div className="bg-[#050505] min-h-screen w-full flex justify-center items-start text-white font-sans select-none lg:p-8">
       
-      {/* 2. アプリの本体枠を「少し明るい紺色 (bg-blue-900)」に変更し、枠線も青系 (border-blue-800) に */}
-      <div className="w-full max-w-[450px] bg-[#111111] min-h-screen border-x border-[#333] shadow-2xl p-4 sm:p-5">
-        
+      <div className="w-full max-w-[450px] lg:max-w-5xl bg-[#111111] min-h-screen lg:min-h-fit lg:rounded-3xl border-x lg:border border-[#333] shadow-2xl p-4 sm:p-5 lg:p-8">
+
         <HeaderTabs activeMode={activeMode} setActiveMode={setActiveMode} />
-        <ScoreSummary highestRecord={highestRecord} averageScore={averageScore} averageRank={averageRank} />
-        <SeasonNav currentSeason={currentSeason} setCurrentSeason={setCurrentSeason} />
-        <ScoreForm 
-          score={score} setScore={setScore} 
-          rank={rank} setRank={setRank} 
-          handleImageChange={handleImageChange} 
-          imagePreview={imagePreview} 
-          handleSave={handleSave} 
-          isSubmitting={isSubmitting} isLoading={isLoading} currentRecordId={currentRecordId} 
-        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 mt-6 lg:mt-8">
+          {/* 左カラム：スコアサマリー ＆ 期の切り替え */}
+          <div className="flex flex-col gap-4">
+            <ScoreSummary highestRecord={highestRecord} averageScore={averageScore} averageRank={averageRank} />
+            <SeasonNav currentSeason={currentSeason} setCurrentSeason={setCurrentSeason} />
+            
+            <div className="hidden lg:flex flex-1 items-center justify-center border border-dashed border-[#333] rounded-2xl bg-[#151515] text-[#444] font-bold tracking-widest mt-2 p-8">
+              DATA MANAGEMENT CONSOLE
+            </div>
+          </div>
+
+          {/* 右カラム：データ入力フォーム */}
+          <div className="flex flex-col h-full">
+            <ScoreForm 
+              score={score} setScore={setScore} 
+              rank={rank} setRank={setRank} 
+              handleImageChange={handleImageChange} 
+              handleSave={handleSave} 
+              isSubmitting={isSubmitting} isLoading={isLoading} currentRecordId={currentRecordId} 
+            />
+          </div>
+        </div>
+
+        {/* 【新規】全幅の画像プレビューエリアを下部に配置 */}
+        <div className="mt-8 border border-dashed border-[#555] rounded-2xl min-h-[250px] lg:min-h-[400px] flex items-center justify-center p-4 bg-[#111] overflow-hidden relative">
+          {imagePreview ? (
+            <img src={imagePreview} alt="リザルトプレビュー" className="max-w-full max-h-[600px] object-contain rounded-lg shadow-2xl shadow-black" />
+          ) : (
+            <div className="text-center text-gray-400">
+              <div className="text-xl font-bold mb-3 text-white tracking-widest">NO IMAGE</div>
+              <div className="text-sm font-bold text-gray-500">
+                クリップボードから画像をペースト <br />
+                <span className="inline-block mt-3 bg-[#222] px-3 py-1.5 rounded text-gray-300 font-mono border border-[#444] shadow-inner">Ctrl + V</span>
+              </div>
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   );

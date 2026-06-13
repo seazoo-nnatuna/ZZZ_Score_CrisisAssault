@@ -3,7 +3,7 @@ import { createWorker } from 'tesseract.js';
 
 // 画像を圧縮する関数
 export const compressImage = async (file) => {
-  const options = { maxSizeMB: 0.2, maxWidthOrHeight: 640, useWebWorker: true };
+  const options = { maxSizeMB: 1.0, maxWidthOrHeight: 1280, useWebWorker: true };
   return await imageCompression(file, options);
 };
 
