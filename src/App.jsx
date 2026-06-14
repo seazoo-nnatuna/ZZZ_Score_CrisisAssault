@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabase';
 import { compressImage, analyzeImageText, extractScoreAndRank } from './utils/imageUtils';
+import { useAuth } from './hooks/useAuth';
+import Auth from './components/Auth';
 
 import HeaderTabs from './components/HeaderTabs';
 import ScoreSummary from './components/ScoreSummary';
@@ -8,11 +10,14 @@ import SeasonNav from './components/SeasonNav';
 import ScoreForm from './components/ScoreForm';
 
 export default function App() {
+  // ▼ コンポーネントの先頭で useAuth を呼び出す
+  const { session, isSignUp, setIsSignUp, handleAuth, handleSignOut } = useAuth();
+
   const [activeMode, setActiveMode] = useState('危局強襲');
   
   // モードごとの期を別々に管理する
   const [kikyokuSeason, setKikyokuSeason] = useState(38); // 危局強襲は初期値38
-  const [gekihenSeason, setGekihenSeason] = useState(5);  // 激変ノードは初期値5
+  const [gekihenSeason, setGekihenSeason] = useState(11);  // 激変ノードは初期値5
 
   // 現在のモードに応じて、表示する期を切り替える
   const currentSeason = activeMode === '危局強襲' ? kikyokuSeason : gekihenSeason;
@@ -165,11 +170,35 @@ export default function App() {
     }
   };
 
+  // ▼ return の直前で、session が無い場合（未ログイン時）の画面を返すようにする
+  if (!session) {
+    return (
+      <div className="relative bg-[#050505] min-h-screen w-full flex justify-center items-center text-white font-sans select-none">
+        {/* 背景グラデーション（ログイン画面でも表示するとカッコいいです） */}
+        <div className="absolute top-0 left-0 w-full h-[600px] z-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 bg-cover bg-top opacity-30" style={{ backgroundImage: "url('https://[あなたのプロジェクトID].supabase.co/storage/v1/object/public/[バケット名]/main_bg.jpg')" }}></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/80 to-[#050505]"></div>
+        </div>
+        
+        {/* ログインコンポーネントの呼び出し */}
+        <Auth handleAuth={handleAuth} isSignUp={isSignUp} setIsSignUp={setIsSignUp} />
+      </div>
+    );
+  }
+
   // ▼ ここから下がレイアウトの要（かなめ）です
   return (
     // 一番外側の枠に `relative` を追加して、背景の基準にします
     <div className="relative bg-[#050505] min-h-screen w-full flex justify-center items-start text-white font-sans select-none lg:p-8">
-      
+
+      {/* 【新規】ログアウトボタン（右上に固定配置） */}
+      <button 
+        onClick={handleSignOut}
+        className="absolute top-4 right-4 z-50 bg-black/60 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg border border-[#333] hover:border-red-500 backdrop-blur-md transition-all active:scale-95 tracking-widest"
+      >
+        LOGOUT
+      </button>
+
       {/* ========================================== */}
       {/* 【新規】背後に敷く、グラデーションで消えるメイン背景 */}
       {/* ========================================== */}
