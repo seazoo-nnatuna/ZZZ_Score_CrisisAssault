@@ -9,7 +9,22 @@ import ScoreForm from './components/ScoreForm';
 
 export default function App() {
   const [activeMode, setActiveMode] = useState('危局強襲');
-  const [currentSeason, setCurrentSeason] = useState(38);
+  
+  // モードごとの期を別々に管理する
+  const [kikyokuSeason, setKikyokuSeason] = useState(38); // 危局強襲は初期値38
+  const [gekihenSeason, setGekihenSeason] = useState(5);  // 激変ノードは初期値5
+
+  // 現在のモードに応じて、表示する期を切り替える
+  const currentSeason = activeMode === '危局強襲' ? kikyokuSeason : gekihenSeason;
+
+  // 矢印ボタンが押された時、現在のモードの方だけ数字を更新する
+  const setCurrentSeason = (updater) => {
+    if (activeMode === '危局強襲') {
+      setKikyokuSeason(updater);
+    } else {
+      setGekihenSeason(updater);
+    }
+  };
   
   const [score, setScore] = useState('');
   const [rank, setRank] = useState('');
@@ -59,6 +74,13 @@ export default function App() {
       setImagePreview(URL.createObjectURL(compressed));
       console.log('画像解析を開始します...');
       const text = await analyzeImageText(file);
+      // ==========================================
+      // F12のコンソールにOCRの解析結果を丸ごと表示する
+      // ==========================================
+      console.log('--- OCR解析テキスト ここから ---');
+      console.log(text);
+      console.log('--- OCR解析テキスト ここまで ---');
+      // ==========================================
       const extracted = extractScoreAndRank(text);
       if (extracted.score) setScore(extracted.score);
       if (extracted.rank) setRank(extracted.rank);
@@ -91,27 +113,53 @@ export default function App() {
   const handleSave = async () => {
     if (!score || !rank) return alert("スコアと順位を入力してください。");
     setIsSubmitting(true);
+    
     try {
+      // 【追加】現在のDBに登録されている古いデータ（画像URL）を取得しておく
+      const targetRecord = allScoresOfMode.find(r => r.season === currentSeason);
+      const oldImageUrl = targetRecord ? targetRecord.image_url : null;
+
       let finalImageUrl = imagePreview;
+
+      // 1. 新しい画像がセットされている場合はストレージにアップロード
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
         const safeModeName = activeMode === '危局強襲' ? 'kikyoku' : 'gekihen';
         const fileName = `${Date.now()}_${safeModeName}_${currentSeason}.${fileExt}`;
         const filePath = `results/${fileName}`;
+
         await supabase.storage.from('results').upload(filePath, imageFile);
         const { data: urlData } = supabase.storage.from('results').getPublicUrl(filePath);
         finalImageUrl = urlData.publicUrl;
       }
+
+      // 【追加】2. 古い画像をストレージから削除する処理（お掃除機能）
+      // 「以前の画像が存在する」かつ「今回の最終的なURLと違う（クリアされた or 別の画像になった）」場合
+      if (oldImageUrl && oldImageUrl !== finalImageUrl) {
+        // public URLからストレージ内のファイルパスだけを抽出する
+        // 例: https://.../public/results/results/filename.jpg -> results/filename.jpg
+        const urlParts = oldImageUrl.split('/public/results/');
+        if (urlParts.length === 2) {
+          const oldFilePath = decodeURIComponent(urlParts[1]); // 日本語名などの文字化け対策
+          await supabase.storage.from('results').remove([oldFilePath]); // ストレージから物理削除
+          console.log('古い画像をストレージから削除しました:', oldFilePath);
+        }
+      }
+
+      // 3. データベースの更新または新規追加
       const payload = { mode: activeMode, season: currentSeason, score: parseInt(score, 10), rank_percentage: parseFloat(rank), image_url: finalImageUrl };
+
       if (currentRecordId) {
         await supabase.from('critical_node_scores').update(payload).eq('id', currentRecordId);
       } else {
         await supabase.from('critical_node_scores').insert([payload]);
       }
+
       alert(`第 ${currentSeason} 期 のデータを保存しました！`);
       await fetchModeScores();
     } catch (err) {
       console.error('保存エラー:', err.message);
+      alert('エラーが発生しました: ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -148,10 +196,24 @@ export default function App() {
           </div>
         </div>
 
-        {/* 【新規】全幅の画像プレビューエリアを下部に配置 */}
+        {/* 全幅の画像プレビューエリア */}
         <div className="mt-8 border border-dashed border-[#555] rounded-2xl min-h-[250px] lg:min-h-[400px] flex items-center justify-center p-4 bg-[#111] overflow-hidden relative">
           {imagePreview ? (
-            <img src={imagePreview} alt="リザルトプレビュー" className="max-w-full max-h-[600px] object-contain rounded-lg shadow-2xl shadow-black" />
+            // 【1. 追加】親要素に `group` クラスを追加してホバー状態を検知できるようにする
+            <div className="relative group">
+              <img src={imagePreview} alt="リザルトプレビュー" className="max-w-full max-h-[600px] object-contain rounded-lg shadow-2xl shadow-black" />
+              
+              {/* 【2. 追加】opacity-100 lg:opacity-0 lg:group-hover:opacity-100 を追加 */}
+              <button 
+                onClick={() => {
+                  setImagePreview(null);
+                  setImageFile(null);
+                }}
+                className="absolute top-2 right-2 lg:top-4 lg:right-4 bg-black/70 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 active:scale-95 border border-[#333] hover:border-red-500"
+              >
+                ✕ 画像をクリア
+              </button>
+            </div>
           ) : (
             <div className="text-center text-gray-400">
               <div className="text-xl font-bold mb-3 text-white tracking-widest">NO IMAGE</div>
