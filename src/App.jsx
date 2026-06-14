@@ -167,62 +167,51 @@ export default function App() {
 
   // ▼ ここから下がレイアウトの要（かなめ）です
   return (
-    <div className="bg-[#050505] min-h-screen w-full flex justify-center items-start text-white font-sans select-none lg:p-8">
+    // 一番外側の枠に `relative` を追加して、背景の基準にします
+    <div className="relative bg-[#050505] min-h-screen w-full flex justify-center items-start text-white font-sans select-none lg:p-8">
       
-      <div className="w-full max-w-[450px] lg:max-w-5xl bg-[#111111] min-h-screen lg:min-h-fit lg:rounded-3xl border-x lg:border border-[#333] shadow-2xl p-4 sm:p-5 lg:p-8">
+      {/* ========================================== */}
+      {/* 【新規】背後に敷く、グラデーションで消えるメイン背景 */}
+      {/* ========================================== */}
+      <div className="absolute top-0 left-0 w-full h-[400px] lg:h-[600px] z-0 pointer-events-none overflow-hidden">
+        {/* 背景画像本体（ここにSupabaseの画像URLを入れます。opacityで少し暗くしています） */}
+        <div 
+          className="absolute inset-0 bg-cover bg-top opacity-50"
+          style={{ backgroundImage: "url('https://jpchrhxnvjampvfvmpkc.supabase.co/storage/v1/object/public/results/BackGround/bg02.jpeg')" }}
+        ></div>
+        
+        {/* 下に向かって背景色(#050505)に溶け込む魔法のグラデーション */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/60 to-[#050505]"></div>
+      </div>
+      {/* ========================================== */}
 
-        <HeaderTabs activeMode={activeMode} setActiveMode={setActiveMode} />
+      {/* メインのコンテンツ枠（z-10 と relative を付けて、背景よりも手前に配置します） */}
+      <div className="relative z-10 w-full max-w-md lg:max-w-4xl bg-transparent min-h-screen lg:min-h-fit p-4 sm:p-5 flex flex-col gap-4 lg:gap-8">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 mt-6 lg:mt-8">
-          {/* 左カラム：スコアサマリー ＆ 期の切り替え */}
-          <div className="flex flex-col gap-4">
-            <ScoreSummary highestRecord={highestRecord} averageScore={averageScore} averageRank={averageRank} />
-            <SeasonNav currentSeason={currentSeason} setCurrentSeason={setCurrentSeason} />
-            
-            <div className="hidden lg:flex flex-1 items-center justify-center border border-dashed border-[#333] rounded-2xl bg-[#151515] text-[#444] font-bold tracking-widest mt-2 p-8">
-              DATA MANAGEMENT CONSOLE
-            </div>
-          </div>
-
-          {/* 右カラム：データ入力フォーム */}
-          <div className="flex flex-col h-full">
-            <ScoreForm 
-              score={score} setScore={setScore} 
-              rank={rank} setRank={setRank} 
-              handleImageChange={handleImageChange} 
-              handleSave={handleSave} 
-              isSubmitting={isSubmitting} isLoading={isLoading} currentRecordId={currentRecordId} 
-            />
-          </div>
+        {/* ① レイヤー1：凸凹タブ ＆ サマリー */}
+        <div className="w-full">
+          <HeaderTabs activeMode={activeMode} setActiveMode={setActiveMode} />
+          <ScoreSummary highestRecord={highestRecord} averageScore={averageScore} averageRank={averageRank} activeMode={activeMode} />
         </div>
 
-        {/* 全幅の画像プレビューエリア */}
-        <div className="mt-8 border border-dashed border-[#555] rounded-2xl min-h-[250px] lg:min-h-[400px] flex items-center justify-center p-4 bg-[#111] overflow-hidden relative">
-          {imagePreview ? (
-            // 【1. 追加】親要素に `group` クラスを追加してホバー状態を検知できるようにする
-            <div className="relative group">
-              <img src={imagePreview} alt="リザルトプレビュー" className="max-w-full max-h-[600px] object-contain rounded-lg shadow-2xl shadow-black" />
-              
-              {/* 【2. 追加】opacity-100 lg:opacity-0 lg:group-hover:opacity-100 を追加 */}
-              <button 
-                onClick={() => {
-                  setImagePreview(null);
-                  setImageFile(null);
-                }}
-                className="absolute top-2 right-2 lg:top-4 lg:right-4 bg-black/70 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 active:scale-95 border border-[#333] hover:border-red-500"
-              >
-                ✕ 画像をクリア
-              </button>
-            </div>
-          ) : (
-            <div className="text-center text-gray-400">
-              <div className="text-xl font-bold mb-3 text-white tracking-widest">NO IMAGE</div>
-              <div className="text-sm font-bold text-gray-500">
-                クリップボードから画像をペースト <br />
-                <span className="inline-block mt-3 bg-[#222] px-3 py-1.5 rounded text-gray-300 font-mono border border-[#444] shadow-inner">Ctrl + V</span>
-              </div>
-            </div>
-          )}
+        {/* ② ＆ ③：期ナビゲーションと入力パネルの間隔を狭めるためにグループ化 */}
+        <div className="w-full flex flex-col gap-1 lg:gap-2">
+          
+          {/* ② レイヤー2：期の切り替え */}
+          <div className="flex justify-center z-10">
+            <SeasonNav currentSeason={currentSeason} setCurrentSeason={setCurrentSeason} />
+          </div>
+
+          {/* ③ レイヤー3：データ入力とプレビューの統合パネル */}
+          <ScoreForm 
+            score={score} setScore={setScore} 
+            rank={rank} setRank={setRank} 
+            handleImageChange={handleImageChange} 
+            handleSave={handleSave} 
+            isSubmitting={isSubmitting} isLoading={isLoading} currentRecordId={currentRecordId} 
+            imagePreview={imagePreview} setImagePreview={setImagePreview} setImageFile={setImageFile}
+          />
+          
         </div>
 
       </div>

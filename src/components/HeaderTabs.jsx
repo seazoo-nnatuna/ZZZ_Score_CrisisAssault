@@ -2,19 +2,23 @@ import React from 'react';
 
 export default function HeaderTabs({ activeMode, setActiveMode }) {
   return (
-    <div className="flex bg-[#1a1a1a] rounded-2xl p-1.5 mb-6 border border-[#333] shadow-inner">
+    <div className="flex px-4 items-end relative z-10 -mb-1">
       <button 
         onClick={() => setActiveMode('危局強襲')} 
-        className={`flex-1 py-4 text-lg font-black rounded-xl transition-all duration-200 ${
-          activeMode === '危局強襲' ? 'bg-[#ffe800] text-black shadow-md scale-[1.02]' : 'text-gray-400 hover:text-white hover:bg-[#2a2a2a]'
+        className={`w-1/2 rounded-t-2xl font-black tracking-widest transition-all duration-200 ${
+          activeMode === '危局強襲' 
+            ? 'bg-[#ffe800] text-black h-14 shadow-md z-10' 
+            : 'bg-[#0a0a0a] text-gray-500 h-11 shadow-inner border border-[#111] hover:text-gray-300'
         }`}
       >
         危局強襲
       </button>
       <button 
         onClick={() => setActiveMode('激変ノード')} 
-        className={`flex-1 py-4 text-lg font-black rounded-xl transition-all duration-200 ${
-          activeMode === '激変ノード' ? 'bg-[#ffe800] text-black shadow-md scale-[1.02]' : 'text-gray-400 hover:text-white hover:bg-[#2a2a2a]'
+        className={`w-1/2 rounded-t-2xl font-black tracking-widest transition-all duration-200 ${
+          activeMode === '激変ノード' 
+            ? 'bg-[#ffe800] text-black h-14 shadow-md z-10' 
+            : 'bg-[#0a0a0a] text-gray-500 h-11 shadow-inner border border-[#111] hover:text-gray-300'
         }`}
       >
         激変ノード
