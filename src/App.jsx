@@ -8,6 +8,8 @@ import HeaderTabs from './components/HeaderTabs';
 import ScoreSummary from './components/ScoreSummary';
 import SeasonNav from './components/SeasonNav';
 import ScoreForm from './components/ScoreForm';
+import ResetPassword from './components/ResetPassword';
+
 
 export default function App() {
   // ▼ コンポーネントの先頭で useAuth を呼び出す
@@ -169,6 +171,20 @@ export default function App() {
       setIsSubmitting(false);
     }
   };
+
+
+  // ▼ 【新規追加】リカバリーモードの時はパスワード再設定画面を表示
+  if (isRecovery) {
+    return (
+      <div className="relative bg-[#050505] min-h-screen w-full flex justify-center items-center text-white font-sans select-none">
+        <div className="absolute top-0 left-0 w-full h-[600px] z-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 bg-cover bg-top opacity-30" style={{ backgroundImage: "url('https://[あなたのプロジェクトID].supabase.co/storage/v1/object/public/[バケット名]/main_bg.jpg')" }}></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/80 to-[#050505]"></div>
+        </div>
+        <ResetPassword handlePasswordReset={handlePasswordReset} />
+      </div>
+    );
+  }
 
   // ▼ return の直前で、session が無い場合（未ログイン時）の画面を返すようにする
   if (!session) {
