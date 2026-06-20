@@ -13,7 +13,6 @@ import ResetPassword from './components/ResetPassword';
 
 export default function App() {
   // ▼ コンポーネントの先頭で useAuth を呼び出す
-  const { session, isSignUp, setIsSignUp, handleAuth, handleSignOut } = useAuth();
   const { session, isSignUp, setIsSignUp, isRecovery, handleAuth, handleSignOut, handlePasswordReset } = useAuth();
   const [activeMode, setActiveMode] = useState('危局強襲');
   
